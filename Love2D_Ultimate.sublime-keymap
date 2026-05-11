@@ -1,0 +1,69 @@
+[
+    // ── Navigation ────────────────────────────────────────────────
+    {"keys":["f12"],           "command":"love_goto_definition",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["f2"],            "command":"love_rename_symbol_smart",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+shift+g"],  "command":"love_find_usages",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+shift+o"],  "command":"love_symbol_picker",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+shift+b"],  "command":"love_breadcrumbs",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+shift+e"],  "command":"love_jump_to_end",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["alt+down"],      "command":"love_next_function",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["alt+up"],        "command":"love_prev_function",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Signature Help ────────────────────────────────────────────
+    {"keys":["ctrl+shift+space"],"command":"love_show_signature_help",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Documentation ─────────────────────────────────────────────
+    {"keys":["f1"],            "command":"love_docs",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+shift+f1"],"command":"love_docs_search",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Require ───────────────────────────────────────────────────
+    {"keys":["ctrl+alt+l"],    "command":"love_require_strip_lua",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+shift+i"],  "command":"love_auto_import",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Refactoring ───────────────────────────────────────────────
+    {"keys":["ctrl+alt+e"],    "command":"love_extract_function",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"},
+                {"key":"selection_empty","operator":"equal","operand":false}]},
+    {"keys":["ctrl+alt+v"],    "command":"love_extract_variable",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"},
+                {"key":"selection_empty","operator":"equal","operand":false}]},
+    {"keys":["ctrl+alt+i"],    "command":"love_inline_variable",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+alt+p"],    "command":"love_wrap_pcall",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+alt+t"],    "command":"love_toggle_local",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+    {"keys":["ctrl+alt+a"],    "command":"love_add_type_annotation",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Quick Fixes & Code Intel ──────────────────────────────────
+    {"keys":["ctrl+."],        "command":"love_show_quick_fixes",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Colors ────────────────────────────────────────────────────
+    {"keys":["ctrl+alt+c"],    "command":"love_insert_color",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Formatting ────────────────────────────────────────────────
+    {"keys":["ctrl+alt+f"],    "command":"love_format_file",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]},
+
+    // ── Live Game ─────────────────────────────────────────────────
+    {"keys":["ctrl+f5"],       "command":"love_run_game"},
+    {"keys":["shift+f5"],      "command":"love_stop_game"},
+    {"keys":["f8"],            "command":"love_jump_to_error",
+     "context":[{"key":"selector","operator":"equal","operand":"source.lua"}]}
+]

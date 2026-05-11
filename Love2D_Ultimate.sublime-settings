@@ -1,0 +1,71 @@
+{
+    // ── LSP / lua-language-server ─────────────────────────────────
+    // Leave empty to auto-detect from PATH and common locations
+    "lls_binary_path": "",
+
+    // ── Live Game ─────────────────────────────────────────────────
+    // Path to Love2D binary. Empty = auto-detect.
+    "love_binary": "",
+    // Auto-reload game on save (requires love_inject_live_reload first)
+    "live_reload": false,
+
+    // ── Signature Help ────────────────────────────────────────────
+    // Show VSCode-style parameter popup inside function calls
+    "signature_help_enabled": true,
+
+    // ── Completions ───────────────────────────────────────────────
+    "require_completions": true,
+    "require_auto_strip": true,
+    "oop_completions_enabled": true,
+
+    // ── Smart Typing ──────────────────────────────────────────────
+    // Auto-close ( [ { " ', smart backspace, pair highlighting
+    "smart_typing": true,
+
+    // ── Breadcrumbs ───────────────────────────────────────────────
+    // Show current function scope in status bar: love.update › Player:move
+    "breadcrumbs": true,
+
+    // ── Hover & Docs ──────────────────────────────────────────────
+    "hover_docs_enabled": true,
+    // Inline → returnType phantoms after function definitions (opt-in)
+    "inline_type_hints": false,
+
+    // ── Color Preview ─────────────────────────────────────────────
+    // Show color swatch on hover over setColor() calls
+    "color_preview": true,
+
+    // ── Code Intelligence ─────────────────────────────────────────
+    // Unused variable/require, duplicate functions, wrong callbacks
+    "code_intelligence": true,
+
+    // ── Performance Hints ─────────────────────────────────────────
+    // Static analysis for GC pressure, missing dt, push/pop, etc.
+    "perf_hints": true,
+    // Warn when love.draw() has more than this many draw calls (0=off)
+    "max_draw_calls_hint": 50,
+    // Warn when a function is longer than this many lines (0=off)
+    "max_function_lines": 60,
+
+    // ── Quick Fixes ───────────────────────────────────────────────
+    "quick_fixes_enabled": true,
+    "qf_check_typos": true,
+    "qf_check_blocks": true,
+    "qf_check_brackets": true,
+    "qf_suggest_local": false,
+
+    // ── Formatting ────────────────────────────────────────────────
+    // "stylua" | "luaformatter" | "none"
+    "formatter": "stylua",
+    "format_on_save": false,
+
+    // ── Indexer ───────────────────────────────────────────────────
+    "max_index_file_size": 262144,
+    "index_workers": 4,
+
+    // ── Status Bar ────────────────────────────────────────────────
+    "status_bar_enabled": true,
+
+    // ── Ignored paths ─────────────────────────────────────────────
+    "index_ignore": ["*.min.lua", "build/**", ".git/**"]
+}

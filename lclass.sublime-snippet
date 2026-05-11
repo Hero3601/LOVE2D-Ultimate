@@ -1,0 +1,27 @@
+<snippet>
+    <content><![CDATA[---@class ${1:MyClass}
+local ${1:MyClass} = {}
+${1:MyClass}.__index = ${1:MyClass}
+
+---@return ${1:MyClass}
+function ${1:MyClass}.new(${2:})
+	local self = setmetatable({}, ${1:MyClass})
+	${3:-- initialise fields}
+	return self
+end
+
+---@param dt number
+function ${1:MyClass}:update(dt)
+	${4}
+end
+
+function ${1:MyClass}:draw()
+	${5}
+end
+
+return ${1:MyClass}
+]]></content>
+    <tabTrigger>lclass</tabTrigger>
+    <scope>source.lua</scope>
+    <description>Love2D: OOP class template (setmetatable)</description>
+</snippet>

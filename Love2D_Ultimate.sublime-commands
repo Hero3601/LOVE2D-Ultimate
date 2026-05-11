@@ -1,0 +1,69 @@
+[
+    // ── Navigation ────────────────────────────────────────────────
+    {"caption":"Love2D: Go to Definition",                 "command":"love_goto_definition"},
+    {"caption":"Love2D: Find All Usages",                  "command":"love_find_usages"},
+    {"caption":"Love2D: Symbol Picker",                    "command":"love_symbol_picker"},
+    {"caption":"Love2D: Rename Symbol (Scope-Aware + Preview)", "command":"love_rename_symbol_smart"},
+    {"caption":"Love2D: Apply Rename Preview",                "command":"love_apply_rename_preview"},
+    {"caption":"Love2D: Cancel Rename Preview",               "command":"love_cancel_rename_preview"},
+    {"caption":"Love2D: Breadcrumbs / Function List",      "command":"love_breadcrumbs"},
+    {"caption":"Love2D: Jump to Matching end",             "command":"love_jump_to_end"},
+    {"caption":"Love2D: Next Function",                    "command":"love_next_function"},
+    {"caption":"Love2D: Previous Function",                "command":"love_prev_function"},
+
+    // ── Signature Help ────────────────────────────────────────────
+    {"caption":"Love2D: Show Signature Help",              "command":"love_show_signature_help"},
+
+    // ── Documentation ─────────────────────────────────────────────
+    {"caption":"Love2D: Docs for Word Under Cursor",       "command":"love_docs"},
+    {"caption":"Love2D: Search Love2D API Reference",      "command":"love_docs_search"},
+
+    // ── Require ───────────────────────────────────────────────────
+    {"caption":"Love2D: Strip .lua from require() Calls",  "command":"love_require_strip_lua"},
+    {"caption":"Love2D: Auto-Import Symbol",               "command":"love_auto_import"},
+
+    // ── Refactoring ───────────────────────────────────────────────
+    {"caption":"Love2D: Extract Function",                 "command":"love_extract_function"},
+    {"caption":"Love2D: Extract Variable",                 "command":"love_extract_variable"},
+    {"caption":"Love2D: Inline Variable",                  "command":"love_inline_variable"},
+    {"caption":"Love2D: Wrap in pcall()",                  "command":"love_wrap_pcall"},
+    {"caption":"Love2D: Toggle local",                     "command":"love_toggle_local"},
+    {"caption":"Love2D: Convert Function Style",           "command":"love_convert_function_style"},
+    {"caption":"Love2D: Add Type Annotations",             "command":"love_add_type_annotation"},
+    {"caption":"Love2D: Surround With Block",              "command":"love_surround_with"},
+
+    // ── Code Intelligence ─────────────────────────────────────────
+    {"caption":"Love2D: Show Code Intelligence Hints",     "command":"love_show_code_intel"},
+    {"caption":"Love2D: Show Performance Hints",           "command":"love_show_perf_hints"},
+    {"caption":"Love2D: Show Quick Fixes",                 "command":"love_show_quick_fixes"},
+
+    // ── Colors ────────────────────────────────────────────────────
+    {"caption":"Love2D: Insert Color (setColor picker)",   "command":"love_insert_color"},
+    {"caption":"Love2D: Convert Color (0-1 ↔ 0-255)",     "command":"love_convert_color"},
+
+    // ── Live Game ─────────────────────────────────────────────────
+    {"caption":"Love2D: Run Game",                         "command":"love_run_game"},
+    {"caption":"Love2D: Stop Game",                        "command":"love_stop_game"},
+    {"caption":"Love2D: Jump to Last Error",               "command":"love_jump_to_error"},
+    {"caption":"Love2D: Inject Live Reload Companion",     "command":"love_inject_live_reload"},
+
+    // ── Formatting ────────────────────────────────────────────────
+    {"caption":"Love2D: Format File (stylua/luaformatter)","command":"love_format_file"},
+
+    // ── Project ───────────────────────────────────────────────────
+    {"caption":"Love2D: New Project Scaffold",             "command":"love_project_scaffold"},
+    {"caption":"Love2D: Write .luarc.json",                "command":"love_write_luarc"},
+    {"caption":"Love2D: Re-Index Workspace",               "command":"love_reindex_workspace"},
+
+    // ── UI Toggles ────────────────────────────────────────────────
+    {"caption":"Love2D: Toggle Inline Type Hints",         "command":"love_toggle_inline_hints"},
+
+    // ── Diagnostics ───────────────────────────────────────────────
+    {"caption":"Love2D: Show Diagnostic Info",             "command":"love_diagnostic_info"},
+    {"caption":"Love2D: Re-configure LSP (run after setting lls_binary_path)", "command":"love_reconfigure_lsp"},
+
+    // ── Migration ─────────────────────────────────────────────────
+    {"caption":"Love2D: Re-check Dependencies",              "command":"love_recheck_dependencies"},
+    {"caption":"Love2D: Show Installation Guide",             "command":"love_show_install_guide"},
+    {"caption":"Love2D: Migrate from Legacy Packages",        "command":"love_migrate_from_legacy"}
+]

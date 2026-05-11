@@ -1,0 +1,43 @@
+{
+    // Love2D build system for Sublime Text
+    // Runs love . in the project root or the folder containing main.lua
+
+    "shell_cmd": "love .",
+    "working_dir": "${project_path:${folder}}",
+    "file_regex": "^(.+\\.lua):(\\d+):",
+    "selector": "source.lua",
+
+    "variants": [
+        {
+            "name": "Run with console (Windows)",
+            "shell_cmd": "start cmd /k love .",
+            "working_dir": "${project_path:${folder}}"
+        },
+        {
+            "name": "Run current file only",
+            "shell_cmd": "love \"${file_path}\"",
+            "working_dir": "${file_path}"
+        },
+        {
+            "name": "Check syntax (luacheck)",
+            "shell_cmd": "luacheck \"${file}\" --globals love",
+            "working_dir": "${project_path:${folder}}"
+        },
+        {
+            "name": "Format with stylua",
+            "shell_cmd": "stylua \"${file}\"",
+            "working_dir": "${project_path:${folder}}"
+        }
+    ],
+
+    "linux": {
+        "shell_cmd": "love . 2>&1"
+    },
+    "osx": {
+        "shell_cmd": "/Applications/love.app/Contents/MacOS/love . 2>&1"
+    },
+    "windows": {
+        "shell_cmd": "love.exe .",
+        "env": { "PATH": "C:\\Program Files\\LOVE;%PATH%" }
+    }
+}

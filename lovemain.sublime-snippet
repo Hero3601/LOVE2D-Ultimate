@@ -1,0 +1,17 @@
+<snippet>
+    <content><![CDATA[function love.load()
+	${1:-- load resources}
+end
+
+function love.update(dt)
+	${2:-- update logic}
+end
+
+function love.draw()
+	${3:-- render}
+end
+]]></content>
+    <tabTrigger>lovemain</tabTrigger>
+    <scope>source.lua</scope>
+    <description>Love2D: main callbacks (load/update/draw)</description>
+</snippet>
