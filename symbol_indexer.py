@@ -64,6 +64,91 @@ RE_CONSTRUCTOR  = re.compile(
 RE_MULTI_ASSIGN = re.compile(
     r"""local\s+([\w\s,]+?)\s*=\s*([\w.:]+)\s*\("""
 )
+
+# ── Known third-party library signatures ─────────────────────────────────────
+# Used as fallback when the source parser can't extract exports
+# (complex patterns, generated code, etc.)
+# Format: module_name_lowercase → {func: ([params], return_type, doc)}
+_KNOWN_LIBRARY_SIGS: dict = {
+    "hc": {  # HardonCollider
+        "new":          (["cell_size"],                 "HC",      "Create a new HC world. Returns the world object."),
+        "newWorld":     (["cell_size"],                 "HC",      "Create a new HC world."),
+        "rectangle":    (["x","y","w","h"],             "Shape",   "Create a rectangle collision shape."),
+        "circle":       (["x","y","radius"],            "Shape",   "Create a circle collision shape."),
+        "polygon":      (["..."],                       "Shape",   "Create a polygon collision shape."),
+        "point":        (["x","y"],                     "Shape",   "Create a point collision shape."),
+        "segment":      (["x1","y1","x2","y2"],         "Shape",   "Create a line segment collision shape."),
+        "update":       ([],                            "",        "Update all shapes and detect collisions."),
+        "draw":         ([],                            "",        "Draw all shapes (debug)."),
+        "remove":       (["shape"],                     "",        "Remove a shape from the world."),
+        "setCell":      (["cell_size"],                 "",        "Set the cell size for spatial hashing."),
+        "hash":         ([],                            "Hash",    "Get the spatial hash."),
+    },
+    "bump": {  # bump.lua
+        "newWorld":     (["cell_size"],                 "World",   "Create a new bump world."),
+        "add":          (["item","x","y","w","h"],      "",        "Add an item to the world."),
+        "update":       (["item","x","y","w","h"],      "",        "Update an item's bounding box."),
+        "move":         (["item","goalX","goalY","filter"], "number,number,table,number", "Move item to goal, resolving collisions."),
+        "check":        (["item","goalX","goalY","filter"], "number,number,table,number", "Check movement without applying."),
+        "remove":       (["item"],                      "",        "Remove item from world."),
+        "queryRect":    (["x","y","w","h","filter"],    "table,number", "Query items in rectangle."),
+        "queryPoint":   (["x","y","filter"],            "table,number", "Query items at point."),
+        "querySegment": (["x1","y1","x2","y2","filter"],"table,number","Query items on segment."),
+        "hasItem":      (["item"],                      "boolean", "Check if item exists in world."),
+        "getRect":      (["item"],                      "number,number,number,number", "Get item bounding box."),
+        "countItems":   ([],                            "number",  "Count items in world."),
+        "getItems":     ([],                            "table,number", "Get all items."),
+    },
+    "sti": {  # Simple Tiled Implementation
+        "new":          (["map","libs","ox","oy"],      "Map",     "Load a Tiled map from a .lua file."),
+    },
+    "anim8": {  # anim8
+        "newGrid":      (["frame_width","frame_height","image_width","image_height","left","top","border"], "Grid", "Create a grid for frame coordinates."),
+        "newAnimation": (["frames","durations","on_loop"], "Animation", "Create a new animation."),
+    },
+    "flux": {  # flux tweening
+        "to":           (["subject","duration","properties"], "Tween", "Tween properties of subject."),
+        "update":       (["dt"],                        "",        "Update all active tweens."),
+    },
+    "lume": {  # lume utility
+        "clamp":        (["x","min","max"],             "number",  "Clamp x between min and max."),
+        "round":        (["x","increment"],             "number",  "Round x to nearest increment."),
+        "lerp":         (["a","b","amount"],            "number",  "Linear interpolation."),
+        "smooth":       (["a","b","amount"],            "number",  "Smooth step interpolation."),
+        "sign":         (["x"],                         "number",  "Return sign of x (-1, 0, or 1)."),
+        "distance":     (["x1","y1","x2","y2"],         "number",  "Distance between two points."),
+        "angle":        (["x1","y1","x2","y2"],         "number",  "Angle between two points."),
+        "shuffle":      (["t"],                         "table",   "Shuffle table in place."),
+        "randomchoice": (["t"],                         "any",     "Pick a random element."),
+        "map":          (["t","fn"],                    "table",   "Apply fn to every element."),
+        "filter":       (["t","fn"],                    "table",   "Filter elements by fn."),
+        "find":         (["t","value"],                 "number",  "Find index of value."),
+    },
+    "vector": {  # hump vector-light
+        "new":          (["x","y"],                     "Vector",  "Create a 2D vector."),
+        "len":          (["x","y"],                     "number",  "Vector length."),
+        "len2":         (["x","y"],                     "number",  "Squared vector length."),
+        "dist":         (["x1","y1","x2","y2"],         "number",  "Distance between two vectors."),
+        "normalize":    (["x","y"],                     "number,number", "Normalize vector."),
+        "dot":          (["x1","y1","x2","y2"],         "number",  "Dot product."),
+        "cross":        (["x1","y1","x2","y2"],         "number",  "Cross product (2D = scalar)."),
+        "rotate":       (["phi","x","y"],               "number,number", "Rotate vector by angle."),
+        "perpendicular":    (["x","y"],                 "number,number", "Perpendicular vector."),
+        "angleBetween":     (["x1","y1","x2","y2"],     "number",  "Angle between two vectors."),
+    },
+    "camera": {  # hump camera
+        "new":          (["x","y","zoom","rot"],        "Camera",  "Create a new camera."),
+    },
+    "timer": {  # hump timer
+        "new":          ([],                            "Timer",   "Create a new timer."),
+        "after":        (["delay","fn"],                "",        "Call fn after delay seconds."),
+        "every":        (["delay","fn","count"],        "",        "Call fn every delay seconds."),
+        "during":       (["delay","fn","after"],        "",        "Call fn for delay seconds."),
+        "update":       (["dt"],                        "",        "Update all timers."),
+        "cancel":       (["handle"],                    "",        "Cancel a timer."),
+        "clear":        ([],                            "",        "Cancel all timers."),
+    },
+}
 # Fix #1: multi-line string regions  [[ ... ]]  and  [=[ ... ]=]
 RE_LONG_STRING  = re.compile(r"\[=*\[.*?\]=*\]", re.DOTALL)
 # Fix #1: single-line comments (-- ...)
@@ -186,6 +271,196 @@ def _strip_noise(source: str) -> str:
     return clean
 
 
+# ── Deep return-type inference ──────────────────────────────────────────────
+# When user writes:  world = hc.newWorld(100)  then  world.
+# The package follows: hc → HC source → finds newWorld body → finds what
+# newWorld creates and returns → those become world's completions.
+# Works for any depth:  a = m.f() → b = a.g() → b.  still resolves.
+
+_BLOCK_OPEN = re.compile(
+    r"(function|if|for|while|do|repeat)", re.MULTILINE
+)
+_BLOCK_CLOSE = re.compile(r"(end|until)", re.MULTILINE)
+_BLOCK_PAT   = re.compile(
+    r"(function|if|for|while|do|repeat|end|until)", re.MULTILINE
+)
+
+
+def _func_body(source: str, func_name: str) -> str:
+    """
+    Extract the body of a named function from source, correctly handling
+    nested function/if/for/while/do/repeat...end blocks.
+
+    Works for both:
+        function M.funcName(...)   ...   end
+        function M:funcName(...)   ...   end
+    """
+    sig_pat = re.compile(
+        # Matches ALL forms:
+        #   function M.func(      function M:func(
+        #   local function func(  function func(
+        r"(?m)^[ \t]*(?:local\s+)?function\s+(?:[\w.:]+[.:])?(?:" +
+        re.escape(func_name) + r")\s*\(",
+    )
+    m_sig = sig_pat.search(source)
+    if not m_sig:
+        return ""
+
+    # Advance past the closing ) of the param list
+    pos   = m_sig.end() - 1   # points at the opening (
+    depth = 0
+    while pos < len(source):
+        if source[pos] == "(":
+            depth += 1
+        elif source[pos] == ")":
+            depth -= 1
+            if depth == 0:
+                break
+        pos += 1
+
+    # Skip to next line — that is where the body starts
+    nl = source.find("\n", pos)
+    if nl < 0:
+        return ""
+    body_start = nl + 1
+
+    # Walk tokens counting block depth
+    nest  = 1
+    body_end = len(source)
+    for m in _BLOCK_PAT.finditer(source, body_start):
+        kw = m.group()
+        if kw in ("function", "if", "for", "while", "do", "repeat"):
+            nest += 1
+        elif kw in ("end", "until"):
+            nest -= 1
+            if nest == 0:
+                body_end = m.start()
+                break
+
+    return source[body_start:body_end]
+
+
+def _inner_object_symbols(
+    body: str, depth: int = 0, max_depth: int = 5
+) -> list:
+    """
+    Given a function body, detect if it creates a local table, defines
+    methods on it, and returns it.  Returns a list of SymbolInfo.
+
+    Recurse into any method whose body ALSO returns a local object
+    (up to max_depth levels).
+
+    Handles all common Lua patterns:
+        local obj = {}                     ← plain table
+        local obj = setmetatable({}, ...)  ← OOP table
+        function obj:method(a, b)          ← colon method
+        function obj.func(a, b)            ← dot function
+        obj.field = function(a, b)         ← inline anon function
+        obj.field = localFuncName          ← local func reference
+        return obj  /  return setmetatable(obj, ...)
+    """
+    if depth > max_depth:
+        return []
+
+    # ── Find local table variable ─────────────────────────────────────────
+    table_pat = re.compile(
+        r"local\s+(\w+)\s*=\s*"
+        r"(?:setmetatable\s*\(\s*\{\s*\}|\{\s*\}|{})"
+    )
+    m_tbl = table_pat.search(body)
+    if not m_tbl:
+        return []
+
+    lv = m_tbl.group(1)   # local variable name, e.g. "world"
+
+    # ── Confirm it is returned ────────────────────────────────────────────
+    ret_pat = re.compile(
+        r"(?:^|\n)\s*return\s+" + re.escape(lv) + r"\b"
+        r"|setmetatable\s*\(\s*" + re.escape(lv) + r"\s*,"
+    )
+    if not ret_pat.search(body):
+        return []
+
+    # ── Build local-func lookup for indirect assignment ───────────────────
+    local_func_pat = re.compile(
+        r"^[ \t]*local\s+function\s+(\w+)\s*\(([^)]*)\)", re.MULTILINE
+    )
+    local_funcs = {
+        m.group(1): [
+            p.strip() for p in m.group(2).split(",")
+            if p.strip() and p.strip() != "self"
+        ]
+        for m in local_func_pat.finditer(body)
+    }
+
+    symbols = []
+    seen    = set()
+
+    # ── function lv:method(params) or function lv.method(params) ─────────
+    method_pat = re.compile(
+        r"^[ \t]*function\s+" + re.escape(lv) +
+        r"([.:])(\w+)\s*\(([^)]*)\)",
+        re.MULTILINE
+    )
+    for m in method_pat.finditer(body):
+        sep   = m.group(1)        # "." or ":"
+        mname = m.group(2)
+        if mname in seen:
+            continue
+        seen.add(mname)
+        params = [
+            p.strip() for p in m.group(3).split(",")
+            if p.strip() and p.strip() != "self"
+        ]
+        sym_name = f"{lv}{sep}{mname}"
+
+        # Recurse: does this method also return a local object?
+        if depth < max_depth:
+            sub_body = _func_body(body, mname)
+            if sub_body:
+                sub_syms = _inner_object_symbols(sub_body, depth + 1, max_depth)
+                # Store sub-symbols tagged with this method name for later
+                # use (future: nested-instance completions)
+                # For now, just record that this method returns an object
+                # by adding it with a return-type hint
+                if sub_syms:
+                    pass   # placeholder — nested return types stored here
+
+        symbols.append(SymbolInfo(
+            name=sym_name, kind="function",
+            file="", line=0, params=params,
+        ))
+
+    # ── lv.field = function(params) or lv.field = localFuncRef ───────────
+    assign_pat = re.compile(
+        r"^[ \t]*" + re.escape(lv) +
+        r"\.(\w+)\s*=\s*(?:function\s*\(([^)]*)\)|([\w]+))",
+        re.MULTILINE
+    )
+    for m in assign_pat.finditer(body):
+        fname = m.group(1)
+        if fname in seen:
+            continue
+        seen.add(fname)
+
+        if m.group(2) is not None:   # inline function
+            params = [
+                p.strip() for p in m.group(2).split(",")
+                if p.strip() and p.strip() != "self"
+            ]
+        elif m.group(3) in local_funcs:   # local func reference
+            params = local_funcs[m.group(3)]
+        else:
+            continue   # non-function field; skip for function completions
+
+        symbols.append(SymbolInfo(
+            name=f"{lv}.{fname}", kind="function",
+            file="", line=0, params=params,
+        ))
+
+    return symbols
+
+
 class LuaFileParser:
 
     @staticmethod
@@ -287,6 +562,13 @@ class LuaFileParser:
 
     @staticmethod
     def _table_members(source, lines, path, idx):
+        # Build a lookup of local functions defined so far so we can resolve
+        # patterns like:   HC.newWorld = newWorld   where newWorld is local
+        local_funcs: dict = {
+            s.name: s for s in idx.symbols
+            if s.kind == "function" and "." not in s.name and ":" not in s.name
+        }
+
         for m in RE_TABLE_MEMBER.finditer(source):
             full = f"{m.group(1)}.{m.group(2)}"
             rhs  = m.group(3).strip()
@@ -298,6 +580,14 @@ class LuaFileParser:
                 idx.symbols.append(SymbolInfo(
                     name=full, kind="function", file=path,
                     line=line, params=params,
+                ))
+            elif rhs in local_funcs:
+                # HC.newWorld = newWorld  →  copy signature from local function
+                src_sym = local_funcs[rhs]
+                idx.symbols.append(SymbolInfo(
+                    name=full, kind="function", file=path,
+                    line=line, params=src_sym.params,
+                    returns=src_sym.returns, doc=src_sym.doc,
                 ))
             else:
                 idx.symbols.append(SymbolInfo(
@@ -342,6 +632,21 @@ class LuaFileParser:
                         key = parts[1]
                         if key not in idx.exports:
                             idx.exports[key] = sym
+
+        # Pattern 3: M.key = localFuncName (HC-style indirect assignment)
+        # After patterns 1+2, any M.func that is a "function" but not yet
+        # in exports gets added.  This catches  HC.newWorld = newWorld  after
+        # _table_members resolved it to a function symbol.
+        for m2 in RE_RETURN_VAR.finditer(source):
+            vn2 = m2.group(1)
+            if vn2 in ("true", "false", "nil"):
+                continue
+            for sym in idx.symbols:
+                if (sym.kind == "function"
+                        and sym.name.startswith(f"{vn2}.")
+                        and sym.name.split(".", 1)[1] not in idx.exports):
+                    key = sym.name.split(".", 1)[1]
+                    idx.exports[key] = sym
 
     @staticmethod
     def _constructor_types(source: str, idx: FileIndex) -> None:
@@ -611,8 +916,9 @@ class SymbolIndexer:
 
         # Match BOTH  ClassName.new(  AND  ClassName:new(
         pat = re.compile(
-            r"(?:local\s+)?" + re.escape(var_name) +
-            r"\s*=\s*([\w.]+)[.:](?:[Nn]ew)\s*\("
+            r"(?:^|\s)(?:local\s+)?\b" + re.escape(var_name) +
+            r"\b\s*=\s*([\w.]+)[.:](?:[Nn]ew)\s*\(",
+            re.MULTILINE
         )
         m = pat.search(source)
         if m:
@@ -621,11 +927,43 @@ class SymbolIndexer:
         # ---@type annotation
         ann_pat = re.compile(
             r"---@type\s+(\w+)[^\n]*\n(?:[^\n]*\n){0,2}\s*" +
-            r"(?:local\s+)?" + re.escape(var_name) + r"\b"
+            r"(?:local\s+)?\b" + re.escape(var_name) + r"\b"
         )
         m2 = ann_pat.search(source)
         if m2:
             return m2.group(1)
+
+        # ── Deep return-type: var = module.func(...) ────────────────────────
+        # Universal rule: if the assignment calls a function on a require()'d
+        # variable, ALWAYS use the function return-type path — regardless of
+        # the function name (new, newWorld, create, load, anything).
+        #
+        # Examples this covers:
+        #   world = hc.newWorld(100)   hc   = require("modules/HC")
+        #   map   = sti.new("map.lua") sti  = require("sti")
+        #   anim  = anim8.newAnimation(grid, {...}, 0.1)
+        #   tween = flux.to(obj, 1, {x=100})
+        #   shape = HC.rectangle(x, y, w, h)
+        #   cam   = Camera()  ← no module prefix, skip
+        #
+        # The require-var check is what separates  Player.new()  (OOP class,
+        # already handled above) from  sti.new()  (module factory function).
+        call_pat = re.compile(
+            r"(?:^|\s)(?:local\s+)?\b" + re.escape(var_name) +
+            r"\b\s*=\s*([\w.]+)[.:]([\w]+)\s*\(",
+            re.MULTILINE
+        )
+        m3 = call_pat.search(source)
+        if m3:
+            module_var = m3.group(1)
+            func_name  = m3.group(2)
+            # Only activate for require()'d module vars, not OOP class vars
+            req_check = re.compile(
+                r"(?:local\s+)?" + re.escape(module_var) +
+                r"\s*=\s*require\s*\("
+            )
+            if req_check.search(source):
+                return f"__rettype__{module_var}::{func_name}"
 
         return None
 
@@ -687,6 +1025,110 @@ class SymbolIndexer:
 
     # ── Module member completions ─────────────────────────────────────────────
 
+    # ── Return-type cache:  (path, func_name) → [SymbolInfo] ───────────────
+    _func_return_cache: dict = {}
+
+    def _completions_from_function_return(
+        self, view, module_var: str, func_name: str,
+        separator: str, prefix: str, depth: int = 0
+    ) -> list:
+        """
+        Resolve completions for  world = hc.newWorld(100)  then  world.
+
+        Steps:
+          1. Find  module_var = require("path")  in current view
+          2. Resolve path → module source file
+          3. Load/cache module source
+          4. Extract the body of  func_name  from module source
+          5. Run  _inner_object_symbols(body)  to get the returned object's methods
+          6. Filter by separator and prefix
+          7. Return CompletionItems
+
+        Recursion (depth): if a method inside the returned object ALSO
+        returns a local object, calling it will recurse with depth+1.
+        Stops at max_depth=5.
+        """
+        MAX_DEPTH = 5
+        if depth > MAX_DEPTH:
+            return []
+
+        source = view.substr(sublime.Region(0, view.size()))
+
+        # ── Step 1: find require() for module_var ───────────────────────
+        req_pat = re.compile(
+            r"(?:local\s+)?" + re.escape(module_var) +
+            r"\s*=\s*require\s*\(\s*['\"]([^\'\"]+)['\"]\s*\)"
+        )
+        m_req = req_pat.search(source)
+        if not m_req:
+            return []
+
+        # ── Step 2: resolve path ────────────────────────────────────────
+        folders = view.window().folders() if view.window() else []
+        resolved = self._resolve_require_path(m_req.group(1), folders)
+        if not resolved:
+            return []
+
+        # ── Step 3: load module source ──────────────────────────────────
+        cache_key = (resolved, func_name)
+        if cache_key not in self._func_return_cache:
+            try:
+                with open(resolved, encoding="utf-8", errors="replace") as fh:
+                    mod_src = fh.read()
+                # Use already-cleaned source if we have a cached FileIndex
+                fi = self.get_file_index(resolved)
+                if not fi:
+                    self._parse_and_cache(resolved, mod_src, 0)
+            except OSError:
+                return []
+        else:
+            mod_src = None   # will use cache below
+
+        # Retrieve from cache if already analysed
+        if cache_key in self._func_return_cache:
+            inner_syms = self._func_return_cache[cache_key]
+        else:
+            # ── Step 4: extract function body ────────────────────────
+            if mod_src is None:
+                return []
+            body = _func_body(mod_src, func_name)
+            if not body:
+                self._func_return_cache[cache_key] = []
+                return []
+
+            # ── Step 5: extract inner object symbols ─────────────────
+            inner_syms = _inner_object_symbols(body, depth, MAX_DEPTH)
+            self._func_return_cache[cache_key] = inner_syms
+
+            # Prune cache if too large
+            if len(self._func_return_cache) > 300:
+                oldest = next(iter(self._func_return_cache))
+                del self._func_return_cache[oldest]
+
+        if not inner_syms:
+            return []
+
+        # ── Step 6 + 7: filter and build completions ────────────────────
+        prefix_lower = prefix.lower()
+        items        = []
+        seen         = set()
+
+        for sym in inner_syms:
+            bare          = sym.name.split(".")[-1].split(":")[-1]
+            sym_is_colon  = ":" in sym.name
+            if separator == ":" and not sym_is_colon:
+                continue
+            if separator == "." and sym_is_colon:
+                continue
+            if prefix_lower and not bare.lower().startswith(prefix_lower):
+                continue
+            if bare in seen:
+                continue
+            seen.add(bare)
+            items.append(self._sym_to_completion_with_sep(sym, bare, separator))
+
+        return items
+
     def module_member_completions(
         self,
         view: sublime.View,
@@ -707,15 +1149,32 @@ class SymbolIndexer:
         folders = view.window().folders() or []
         source  = view.substr(sublime.Region(0, view.size()))
 
-        # ── Instance variable resolution: p = player:new() ─────────────────
-        # _resolve_var_class returns the class/module name used in the
-        # constructor call.  e.g. for  p = player:new()  it returns "player".
-        # We then look up "player"'s members in three ways (broadest to narrowest):
-        #   A. OOP engine by exact name ("player")
-        #   B. OOP engine case-insensitively ("Player" matches "player")
-        #   C. module_member_completions for "player" as a require() var
-        #      (this is the key fallback — player = require("entity/player"))
+        # ── Deep return-type resolution: world = hc.newWorld(100) ──────────
+        # _resolve_var_class returns "__rettype__<module>::<func>" sentinel
+        # when it detects a function-call assignment (not a .new() constructor).
+        # We resolve it by tracing into the module source and extracting the
+        # returned object's methods recursively.
         class_name = self._resolve_var_class(view, var_name)
+        if class_name and class_name.startswith("__rettype__"):
+            parts = class_name[11:].split("::")  # "hc::newWorld"
+            if len(parts) == 2:
+                items = self._completions_from_function_return(
+                    view, parts[0], parts[1], separator, prefix_lower
+                )
+                if items:
+                    return sublime.CompletionList(
+                        items,
+                        flags=(
+                            sublime.INHIBIT_WORD_COMPLETIONS |
+                            sublime.INHIBIT_EXPLICIT_COMPLETIONS
+                        ),
+                    )
+            # If resolution failed, fall through to normal class lookup
+            class_name = None
+
+        # ── Instance variable resolution: p = player:new() ─────────────
+        if class_name is None:
+            class_name = self._resolve_var_class(view, var_name)
         if class_name:
             try:
                 from Love2D_Ultimate.oop_completion import OopCompletionEngine

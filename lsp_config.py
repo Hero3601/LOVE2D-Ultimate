@@ -41,12 +41,20 @@ LOVE2D_GLOBALS = ["love", "arg"]
 LUA_RUNTIME    = "LuaJIT"
 
 # ── Full server configuration ─────────────────────────────────────────────────
-def _make_server_config(binary: str, stubs_path: str) -> dict:
+def _make_server_config(binary: str, stubs_path: str,
+                        love_api_path: str = "") -> dict:
     """
     Returns the complete lua-language-server client configuration.
-    This format works with both modern and legacy LSP package versions.
+    Uses NESTED JSON format — flat keys like "runtime.version" are ignored by LuaLS.
+
+    love_api_path: optional extra stubs dir (e.g. C:\tools\love-api)
     """
-    library = [stubs_path] if stubs_path and os.path.isdir(stubs_path) else []
+    library = []
+    if stubs_path and os.path.isdir(stubs_path):
+        library.append(stubs_path)
+    if love_api_path and os.path.isdir(love_api_path):
+        library.append(love_api_path)
+        log.info(f"love-api stubs added: {love_api_path}")
 
     return {
         "enabled": True,
@@ -121,6 +129,10 @@ def _make_server_config(binary: str, stubs_path: str) -> dict:
         },
         "initializationOptions": {},
         "env": {},
+        # Critical: allow Love2D Ultimate completions to coexist with LLS
+        # Without these, LSP blocks all other completion providers
+        "inhibit_snippet_completions": False,
+        "inhibit_word_completions":    False,
     }
 
 
@@ -262,7 +274,8 @@ def _deep_merge(base: dict, override: dict) -> None:
 # .luarc.json writer
 # ─────────────────────────────────────────────────────────────────────────────
 
-def write_luarc(project_path: str, stubs_path: str = "") -> None:
+def write_luarc(project_path: str, stubs_path: str = "",
+                love_api_path: str = "") -> None:
     """Write a .luarc.json configured for Love2D into project_path."""
     luarc_path = os.path.join(project_path, ".luarc.json")
     existing: dict = {}
@@ -274,6 +287,12 @@ def write_luarc(project_path: str, stubs_path: str = "") -> None:
         except (json.JSONDecodeError, OSError):
             pass
 
+    library = []
+    if stubs_path and os.path.isdir(stubs_path):
+        library.append(stubs_path)
+    if love_api_path and os.path.isdir(love_api_path):
+        library.append(love_api_path)
+
     template = {
         "$schema": (
             "https://raw.githubusercontent.com/LuaLS/vscode-lua/"
@@ -282,7 +301,7 @@ def write_luarc(project_path: str, stubs_path: str = "") -> None:
         "runtime": {"version": LUA_RUNTIME},
         "diagnostics": {"globals": LOVE2D_GLOBALS},
         "workspace": {
-            "library": [stubs_path] if stubs_path and os.path.isdir(stubs_path) else [],
+            "library": library,
             "checkThirdParty": False,
         },
         "completion": {"callSnippet": "Replace"},
@@ -336,7 +355,11 @@ def ensure_lsp_configured() -> None:
     log.info(f"lua-language-server found: {binary}")
     stubs = _get_stubs_path()
 
-    config = _make_server_config(binary, stubs)
+    # Also include user-supplied love-api path if set
+    s = sublime.load_settings(SETTINGS_FILE)
+    love_api = s.get("love_api_path", "").strip()
+
+    config = _make_server_config(binary, stubs, love_api_path=love_api)
 
     # Write both formats
     _write_lsp_lua_settings(config)
@@ -364,8 +387,10 @@ class LoveWriteLuarcCommand(sublime_plugin.WindowCommand):
         if not folders:
             sublime.error_message("No project folder open.")
             return
-        stubs = _get_stubs_path()
-        write_luarc(folders[0], stubs_path=stubs)
+        stubs    = _get_stubs_path()
+        s        = sublime.load_settings(SETTINGS_FILE)
+        love_api = s.get("love_api_path", "").strip()
+        write_luarc(folders[0], stubs_path=stubs, love_api_path=love_api)
         sublime.status_message(f"Love2D: .luarc.json written to {folders[0]}")
 
 
